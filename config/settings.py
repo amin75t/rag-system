@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'users',  # Custom users app
+    'utils',  # Utils app for API connections and utilities
 ]
 
 MIDDLEWARE = [
