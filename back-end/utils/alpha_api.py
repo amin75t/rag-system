@@ -127,6 +127,73 @@ class AlphaAPIClient:
         response = self._post_to_embeddings(payload)
         return response
     
+    def extract_embeddings(self, response: Dict[str, Any]) -> List[List[float]]:
+        """
+        Extract embeddings from the API response.
+        
+        Args:
+            response: The response dictionary from embeddings API
+            
+        Returns:
+            List of embedding vectors (list of floats)
+            
+        Example:
+            >>> client = AlphaAPIClient()
+            >>> response = client.embeddings("Hello world!")
+            >>> embeddings = client.extract_embeddings(response)
+            >>> print(len(embeddings[0]))  # Embedding dimension
+        """
+        if 'data' not in response:
+            raise ValueError("Invalid response format: 'data' key not found")
+        
+        embeddings = []
+        for item in response['data']:
+            if 'embedding' not in item:
+                raise ValueError("Invalid response format: 'embedding' key not found in data item")
+            embeddings.append(item['embedding'])
+        
+        return embeddings
+    
+    def get_embedding_vector(self, text: str, model: Optional[str] = None) -> List[float]:
+        """
+        Get a single embedding vector for the given text.
+        
+        Args:
+            text: Text to embed
+            model: Model name (optional, uses default if not provided)
+            
+        Returns:
+            Single embedding vector (list of floats)
+            
+        Example:
+            >>> client = AlphaAPIClient()
+            >>> vector = client.get_embedding_vector("Hello world!")
+            >>> print(len(vector))  # Embedding dimension
+        """
+        response = self.embeddings(text, model)
+        embeddings = self.extract_embeddings(response)
+        return embeddings[0] if embeddings else []
+    
+    def get_usage_info(self, response: Dict[str, Any]) -> Dict[str, int]:
+        """
+        Extract token usage information from the embeddings response.
+        
+        Args:
+            response: The response dictionary from embeddings API
+            
+        Returns:
+            Dictionary with token usage information
+            
+        Example:
+            >>> client = AlphaAPIClient()
+            >>> response = client.embeddings("Hello world!")
+            >>> usage = client.get_usage_info(response)
+            >>> print(f"Tokens used: {usage['total_tokens']}")
+        """
+        if 'usage' not in response:
+            return {}
+        return response['usage']
+    
     def _post(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Internal method to make POST request.
@@ -290,3 +357,60 @@ def get_alpha_api_client() -> AlphaAPIClient:
     if _alpha_api_client is None:
         _alpha_api_client = AlphaAPIClient()
     return _alpha_api_client
+
+
+# Convenience functions for embedding helpers
+def extract_embeddings(response: Dict[str, Any]) -> List[List[float]]:
+    """
+    Convenience function to extract embeddings from API response.
+    
+    Args:
+        response: The response dictionary from embeddings API
+        
+    Returns:
+        List of embedding vectors (list of floats)
+        
+    Example:
+        >>> response = get_embeddings("Hello world!")
+        >>> embeddings = extract_embeddings(response)
+    """
+    client = get_alpha_api_client()
+    return client.extract_embeddings(response)
+
+
+def get_embedding_vector(text: str, model: Optional[str] = None) -> List[float]:
+    """
+    Convenience function to get a single embedding vector for text.
+    
+    Args:
+        text: Text to embed
+        model: Model name (optional)
+        
+    Returns:
+        Single embedding vector (list of floats)
+        
+    Example:
+        >>> vector = get_embedding_vector("Hello world!")
+        >>> print(len(vector))
+    """
+    client = get_alpha_api_client()
+    return client.get_embedding_vector(text, model)
+
+
+def get_usage_info(response: Dict[str, Any]) -> Dict[str, int]:
+    """
+    Convenience function to extract token usage from embeddings response.
+    
+    Args:
+        response: The response dictionary from embeddings API
+        
+    Returns:
+        Dictionary with token usage information
+        
+    Example:
+        >>> response = get_embeddings("Hello world!")
+        >>> usage = get_usage_info(response)
+        >>> print(f"Tokens used: {usage['total_tokens']}")
+    """
+    client = get_alpha_api_client()
+    return client.get_usage_info(response)

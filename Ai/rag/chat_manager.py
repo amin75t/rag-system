@@ -1,7 +1,9 @@
 import os
 import sys
 import logging
-from typing import Optional
+from typing import List, Optional, Any
+import requests
+import numpy as np
 
 # ==================== HARD OFFLINE CONFIG ====================
 os.environ["HF_HUB_OFFLINE"] = "1"
@@ -11,12 +13,12 @@ os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 # =============================================================
 
 from llama_index.core import (
-    Settings, 
-    StorageContext, 
-    load_index_from_storage, 
+    Settings,
+    StorageContext,
+    load_index_from_storage,
     VectorStoreIndex
 )
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core.embeddings import BaseEmbedding
 from llama_index.llms.llama_cpp import LlamaCPP
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.chat_engine import ContextChatEngine
@@ -28,6 +30,140 @@ if PROJECT_ROOT not in sys.path:
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger("QueryEngine")
+
+
+# -------------------- Custom Backend Embedding --------------------
+class BackendEmbedding(BaseEmbedding):
+    """
+    Custom embedding class that uses the backend API for embeddings.
+    Sends text chunks to the backend and receives embedding vectors.
+    """
+    
+    def __init__(
+        self,
+        backend_url: str = "http://localhost:8000/api/utils/alpha/embeddings/",
+        model: str = "baai-bge-m3",
+        timeout: int = 60,
+        **kwargs
+    ):
+        """
+        Initialize the backend embedding client.
+        
+        Args:
+            backend_url: URL of the backend embeddings API endpoint
+            model: Model name to use for embeddings
+            timeout: Request timeout in seconds
+            **kwargs: Additional arguments passed to BaseEmbedding
+        """
+        super().__init__(**kwargs)
+        self.backend_url = backend_url
+        self.model = model
+        self.timeout = timeout
+        self._session = requests.Session()
+        self._session.headers.update({
+            'Content-Type': 'application/json'
+        })
+        logger.info(f"🔌 BackendEmbedding initialized with URL: {backend_url}")
+    
+    def _get_query_embedding(self, query: str) -> List[float]:
+        """
+        Get embedding for a single query text.
+        
+        Args:
+            query: Query text to embed
+            
+        Returns:
+            Embedding vector as list of floats
+        """
+        return self._get_text_embedding(query)
+    
+    def _get_text_embedding(self, text: str) -> List[float]:
+        """
+        Get embedding for a single text.
+        
+        Args:
+            text: Text to embed
+            
+        Returns:
+            Embedding vector as list of floats
+        """
+        try:
+            payload = {
+                "model": self.model,
+                "input": text
+            }
+            response = self._session.post(self.backend_url, json=payload, timeout=self.timeout)
+            response.raise_for_status()
+            data = response.json()
+            
+            # Extract embedding from response
+            # Response format: {"model": "...", "data": [{"embedding": [...], "index": 0, "object": "embedding"}], ...}
+            if "data" in data and len(data["data"]) > 0:
+                embedding = data["data"][0]["embedding"]
+                logger.debug(f"✅ Got embedding for text (length: {len(text)}, dim: {len(embedding)})")
+                return embedding
+            else:
+                raise ValueError(f"Invalid response format: {data}")
+                
+        except requests.RequestException as e:
+            logger.error(f"❌ Failed to get embedding from backend: {e}")
+            raise
+        except (KeyError, IndexError) as e:
+            logger.error(f"❌ Failed to parse embedding response: {e}")
+            raise
+    
+    def _get_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """
+        Get embeddings for multiple texts.
+        
+        Args:
+            texts: List of texts to embed
+            
+        Returns:
+            List of embedding vectors
+        """
+        try:
+            payload = {
+                "model": self.model,
+                "input": texts
+            }
+            response = self._session.post(self.backend_url, json=payload, timeout=self.timeout)
+            response.raise_for_status()
+            data = response.json()
+            
+            # Extract embeddings from response
+            if "data" in data:
+                embeddings = [item["embedding"] for item in data["data"]]
+                logger.debug(f"✅ Got {len(embeddings)} embeddings from backend")
+                return embeddings
+            else:
+                raise ValueError(f"Invalid response format: {data}")
+                
+        except requests.RequestException as e:
+            logger.error(f"❌ Failed to get embeddings from backend: {e}")
+            raise
+        except (KeyError, IndexError) as e:
+            logger.error(f"❌ Failed to parse embeddings response: {e}")
+            raise
+    
+    def async_get_embedding(self, text: str) -> List[float]:
+        """
+        Asynchronously get embedding for text (not implemented, uses sync version).
+        """
+        return self._get_text_embedding(text)
+    
+    async def aget_embedding(self, text: str) -> List[float]:
+        """
+        Asynchronously get embedding for text.
+        """
+        return self._get_text_embedding(text)
+    
+    async def aget_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """
+        Asynchronously get embeddings for multiple texts.
+        """
+        return self._get_text_embeddings(texts)
+
 
 # -------------------- LLM Prompt Formatting (Qwen/Llama3 style) --------------------
 def messages_to_prompt(messages):
@@ -84,14 +220,33 @@ class EnterpriseChatSystem:
         persist_dir: str = "./indexes/idx_latest/storage",
         jina_model_path: str = "/home/amir/ai/Llamaindex/models/jina-v3",
         llm_model_path: str = "./models/Qwen2.5-7B-Instruct-Q4_K_M.gguf",
-        similarity_top_k: int = 7, 
+        similarity_top_k: int = 7,
         context_window: int = 8192,
+        use_backend_embedding: bool = True,
+        backend_embedding_url: str = "http://localhost:8000/api/utils/alpha/embeddings/",
+        embedding_model: str = "baai-bge-m3",
     ):
+        """
+        Initialize the Enterprise Chat System.
+        
+        Args:
+            persist_dir: Directory where the index is stored
+            jina_model_path: Path to local Jina model (if not using backend)
+            llm_model_path: Path to LLM model file
+            similarity_top_k: Number of similar documents to retrieve
+            context_window: Context window size for LLM
+            use_backend_embedding: Whether to use backend API for embeddings
+            backend_embedding_url: URL of the backend embeddings API
+            embedding_model: Model name for embeddings
+        """
         self.persist_dir = persist_dir
         self.jina_model_path = jina_model_path
         self.llm_model_path = llm_model_path
         self.similarity_top_k = similarity_top_k
         self.context_window = context_window
+        self.use_backend_embedding = use_backend_embedding
+        self.backend_embedding_url = backend_embedding_url
+        self.embedding_model = embedding_model
 
         self._init_models()
         self.index = self._load_index()
@@ -114,23 +269,34 @@ class EnterpriseChatSystem:
             model_kwargs={
                 "n_gpu_layers": -1,
                 "offload_kqv": True,
-                "n_ctx": self.context_window, 
+                "n_ctx": self.context_window,
             },
             verbose=False,
         )
 
-        # 2. Embedding (Local Jina V3)
-        if not os.path.exists(self.jina_model_path):
-            raise FileNotFoundError(f"❌ Embedding model not found at: {self.jina_model_path}")
+        # 2. Embedding - Backend API or Local Model
+        if self.use_backend_embedding:
+            logger.info(f"🌐 Using Backend API for embeddings at: {self.backend_embedding_url}")
+            Settings.embed_model = BackendEmbedding(
+                backend_url=self.backend_embedding_url,
+                model=self.embedding_model,
+                timeout=60
+            )
+        else:
+            # Use local HuggingFace model
+            logger.info(f"💾 Using local embedding model at: {self.jina_model_path}")
+            if not os.path.exists(self.jina_model_path):
+                raise FileNotFoundError(f"❌ Embedding model not found at: {self.jina_model_path}")
 
-        Settings.embed_model = HuggingFaceEmbedding(
-            model_name=self.jina_model_path,
-            trust_remote_code=True,
-            device="cuda", 
-            max_length=8192,
-            model_kwargs={"local_files_only": True, "trust_remote_code": True},
-            tokenizer_kwargs={"local_files_only": True}
-        )
+            from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+            Settings.embed_model = HuggingFaceEmbedding(
+                model_name=self.jina_model_path,
+                trust_remote_code=True,
+                device="cuda",
+                max_length=8192,
+                model_kwargs={"local_files_only": True, "trust_remote_code": True},
+                tokenizer_kwargs={"local_files_only": True}
+            )
 
     def _load_index(self) -> VectorStoreIndex:
         if not os.path.exists(self.persist_dir):
@@ -169,34 +335,38 @@ class EnterpriseChatSystem:
         return str(response)
 
 # -------------------- CLI Runner --------------------
-def main():
-    try:
-        # تنظیم مسیرها را بر اساس سیستم خود چک کنید
-        bot = EnterpriseChatSystem(
-            persist_dir="./indexes/idx_latest/storage",
-            llm_model_path="./models/Qwen2.5-7B-Instruct-Q4_K_M.gguf",
-            jina_model_path="/home/amir/ai/Llamaindex/models/jina-v3"
-        )
-        print("\n" + "="*60)
-        print("✅ دستیار هوشمند سخنور (Sokhanvar) آماده است.")
-        print("   من می‌توانم درباره اسناد شما و اطلاعات عمومی توضیح دهم.")
-        print("="*60 + "\n")
+# def main():
+#     try:
+#         # تنظیم مسیرها را بر اساس سیستم خود چک کنید
+#         bot = EnterpriseChatSystem(
+#             persist_dir="./indexes/idx_latest/storage",
+#             llm_model_path="./models/Qwen2.5-7B-Instruct-Q4_K_M.gguf",
+#             jina_model_path="/home/amir/ai/Llamaindex/models/jina-v3",
+#             use_backend_embedding=True,  # Use backend API for embeddings
+#             backend_embedding_url="http://localhost:8000/api/utils/alpha/embeddings/",
+#             embedding_model="baai-bge-m3"
+#         )
+#         print("\n" + "="*60)
+#         print("✅ دستیار هوشمند سخنور (Sokhanvar) آماده است.")
+#         print("   من می‌توانم درباره اسناد شما و اطلاعات عمومی توضیح دهم.")
+#         print("   استفاده از API Backend برای embeddings فعال است.")
+#         print("="*60 + "\n")
 
-        while True:
-            q = input("🧑‍💻 سوال: ").strip()
-            if q.lower() in ["exit", "quit"]:
-                break
-            if not q:
-                continue
+#         while True:
+#             q = input("🧑‍💻 سوال: ").strip()
+#             if q.lower() in ["exit", "quit"]:
+#                 break
+#             if not q:
+#                 continue
             
-            print("⏳ در حال اندیشیدن...")
-            response = bot.chat(q)
-            print(f"\n🤖 پاسخ:\n{response}\n")
-            print("-" * 60)
+#             print("⏳ در حال اندیشیدن...")
+#             response = bot.chat(q)
+#             print(f"\n🤖 پاسخ:\n{response}\n")
+#             print("-" * 60)
 
-    except Exception as e:
-        logger.exception("Critical Error in Main Loop")
-        print(f"❌ Error: {e}")
+#     except Exception as e:
+#         logger.exception("Critical Error in Main Loop")
+#         print(f"❌ Error: {e}")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
