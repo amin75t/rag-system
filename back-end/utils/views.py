@@ -274,14 +274,7 @@ def alpha_chat_completion(request):
         required=['input'],
         properties={
             'input': openapi.Schema(
-                oneOf=[
-                    openapi.Schema(type=openapi.TYPE_STRING, description='Text to embed'),
-                    openapi.Schema(
-                        type=openapi.TYPE_ARRAY,
-                        items=openapi.Schema(type=openapi.TYPE_STRING),
-                        description='List of texts to embed'
-                    )
-                ],
+                type=openapi.TYPE_STRING,
                 description='Text or list of texts to embed'
             ),
             'model': openapi.Schema(
