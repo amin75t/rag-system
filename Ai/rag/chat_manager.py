@@ -1,9 +1,8 @@
 import os
 import sys
 import logging
-from typing import List, Optional, Any
+from typing import List
 import requests
-import numpy as np
 
 # ==================== HARD OFFLINE CONFIG ====================
 os.environ["HF_HUB_OFFLINE"] = "1"
