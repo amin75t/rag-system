@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',  # Custom users app
     'utils',  # Utils app for API connections and utilities
+    'superset',  # Superset integration app
 ]
 
 MIDDLEWARE = [
@@ -142,3 +143,35 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
+# -----------------------------
+# Superset Configuration
+# -----------------------------
+# NOTE: Do not expose these credentials to the frontend.
+SUPERSET_CONFIG = {
+    # Superset base URL used by Django backend to call Superset APIs
+    "SUPERSET_URL": "http://localhost:8088",
+
+    # Service user credentials (create a dedicated user in Superset for embedding)
+    "SUPERSET_USERNAME": "admin",
+    "SUPERSET_PASSWORD": "admin",
+
+    # Fallback TTL (real exp is usually inside the guest token JWT)
+    "GUEST_TOKEN_EXPIRY": 300,
+
+    # Allow-list dashboards your app is allowed to embed
+    "EMBEDDABLE_DASHBOARDS": {
+        "sample_dashboard": {
+            # Numeric Superset dashboard id (optional; only for metadata endpoints)
+            "superset_dashboard_id": 1,
+
+            # UUID from Superset "Embed" panel (REQUIRED for embedding)
+            "dashboard_uuid": "PUT-YOUR-EMBED-UUID-HERE",
+
+            # Browser-reachable Superset domain (used by React SDK as supersetDomain)
+            "domain": "http://localhost:8088",
+
+            # Optional: your app roles allowed to view this dashboard
+            "allowed_roles": ["Public"],
+        }
+    },
+}
