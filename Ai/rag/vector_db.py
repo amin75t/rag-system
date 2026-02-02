@@ -12,6 +12,10 @@ from pathlib import Path
 import chromadb
 from chromadb.config import Settings
 
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,7 +30,7 @@ class VectorDBManager:
     def __init__(
         self,
         collection_name: str = "documents",
-        persist_directory: str = "./vector_db",
+        persist_directory: str = None,
         embedding_function=None
     ):
         """
@@ -34,10 +38,13 @@ class VectorDBManager:
         
         Args:
             collection_name: Name of the ChromaDB collection
-            persist_directory: Directory to persist the vector database
+            persist_directory: Directory to persist the vector database (optional, uses env var if not provided)
             embedding_function: Custom embedding function (optional)
         """
         self.collection_name = collection_name
+        # Use environment variable if persist_directory not provided
+        if persist_directory is None:
+            persist_directory = os.getenv('VECTOR_DB_PATH', './vector_db')
         self.persist_directory = Path(persist_directory)
         self.embedding_function = embedding_function
         
