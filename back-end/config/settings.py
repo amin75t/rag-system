@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'corsheaders',
+    'fileuploader',
     'users',  # Custom users app
     'utils',  # Utils app for API connections and utilities
 ]
