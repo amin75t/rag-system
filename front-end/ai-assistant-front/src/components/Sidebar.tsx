@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useLayoutContext } from '../contexts';
+import { useLayoutContext, useAuth } from '../contexts';
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -19,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false, onToggle, isMobi
   const location = useLocation();
   const navigate = useNavigate();
   const { closeSidebar } = useLayoutContext();
+  const { user, logout } = useAuth();
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -71,6 +72,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false, onToggle, isMobi
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+      if (isMobile) {
+        closeSidebar();
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <div className={`bg-gradient-to-b from-sky-800 to-sky-900 text-white transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-64'} min-h-screen flex flex-col font-iransans ${isMobile ? 'h-full' : ''}`} dir="rtl">
       <div className="p-4">
@@ -96,6 +109,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false, onToggle, isMobi
         </div>
       </div>
 
+      {/* User info section */}
+      {!isCollapsed && user && (
+        <div className="px-4 py-3 border-b border-sky-700">
+          <div className="flex items-center space-x-reverse space-x-3">
+            <div className="w-10 h-10 bg-sky-600 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium">
+                {user.firstName?.[0] || user.username?.[0] || 'U'}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">
+                {user.firstName && user.lastName
+                  ? `${user.firstName} ${user.lastName}`
+                  : user.username
+                }
+              </p>
+              <p className="text-xs text-sky-300 truncate">
+                {user.email}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <nav className="flex-1 px-2 space-y-2">
         {sidebarItems.map((item) => (
           <button
@@ -116,7 +153,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false, onToggle, isMobi
         ))}
       </nav>
 
-      <div className="p-4 border-t border-sky-700">
+      <div className="p-4 border-t border-sky-700 space-y-2">
+        {/* Logout button */}
+        <button
+          onClick={handleLogout}
+          className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-start'} px-3 py-2 rounded-md transition-colors text-sky-100 hover:bg-red-600/50 hover:text-white`}
+          title={isCollapsed ? "خروج" : undefined}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          {!isCollapsed && (
+            <span className="mr-3 text-sm font-medium">خروج</span>
+          )}
+        </button>
+        
         {!isCollapsed && (
           <div className="text-xs text-sky-200">
             <p>سیستم مدیریت هوشمند</p>
