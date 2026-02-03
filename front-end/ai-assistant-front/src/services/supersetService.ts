@@ -1,6 +1,6 @@
 import axios, { type InternalAxiosRequestConfig } from "axios";
 
-const API_BASE_URL = "http://localhost:8000/api/superset";
+const API_BASE_URL = "http://127.0.0.1:8080";
 
 /**
  * Request payload for guest token creation.
@@ -80,7 +80,7 @@ class SupersetService {
    * POST /api/superset/guest-token/
    */
   async generateGuestToken(request: GuestTokenRequest): Promise<GuestTokenResponse> {
-    const response = await this.api.post<GuestTokenResponse>("/guest-token/", request);
+    const response = await this.api.post<GuestTokenResponse>("/api/superset/guest-token/", request);
     return response.data;
   }
 
@@ -89,7 +89,7 @@ class SupersetService {
    * GET /api/superset/dashboards/
    */
   async getEmbeddedDashboards(): Promise<EmbeddedDashboard[]> {
-    const response = await this.api.get<EmbeddedDashboard[]>("/dashboards/");
+    const response = await this.api.get<EmbeddedDashboard[]>("/api/superset/dashboards/");
     return response.data;
   }
 
@@ -98,7 +98,7 @@ class SupersetService {
    * GET /api/superset/dashboards/:id/
    */
   async getEmbeddedDashboard(id: number): Promise<EmbeddedDashboard> {
-    const response = await this.api.get<EmbeddedDashboard>(`/dashboards/${id}/`);
+    const response = await this.api.get<EmbeddedDashboard>(`/api/superset/dashboards/${id}/`);
     return response.data;
   }
 
@@ -111,7 +111,7 @@ class SupersetService {
   ): Promise<{ valid: boolean; token_info?: Record<string, unknown> }> {
     const safeToken = encodeURIComponent(token);
     const response = await this.api.get<{ valid: boolean; token_info?: Record<string, unknown> }>(
-      `/guest-token/${safeToken}/validate/`
+      `/api/superset/guest-token/${safeToken}/validate/`
     );
     return response.data;
   }
@@ -121,7 +121,7 @@ class SupersetService {
    * GET /api/superset/dashboard/:superset_dashboard_id/
    */
   async getDashboardInfo(supersetDashboardId: number): Promise<Record<string, unknown>> {
-    const response = await this.api.get<Record<string, unknown>>(`/dashboard/${supersetDashboardId}/`);
+    const response = await this.api.get<Record<string, unknown>>(`/api/superset/dashboard/${supersetDashboardId}/`);
     return response.data;
   }
 
@@ -131,7 +131,7 @@ class SupersetService {
   async createEmbeddedDashboard(
     dashboard: Omit<EmbeddedDashboard, "id" | "created_at" | "updated_at">
   ): Promise<EmbeddedDashboard> {
-    const response = await this.api.post<EmbeddedDashboard>("/dashboards/", dashboard);
+    const response = await this.api.post<EmbeddedDashboard>("/api/superset/dashboards/", dashboard);
     return response.data;
   }
 
@@ -139,7 +139,7 @@ class SupersetService {
    * Update an embedded dashboard record (admin only).
    */
   async updateEmbeddedDashboard(id: number, dashboard: Partial<EmbeddedDashboard>): Promise<EmbeddedDashboard> {
-    const response = await this.api.put<EmbeddedDashboard>(`/dashboards/${id}/`, dashboard);
+    const response = await this.api.put<EmbeddedDashboard>(`/api/superset/dashboards/${id}/`, dashboard);
     return response.data;
   }
 
@@ -147,7 +147,7 @@ class SupersetService {
    * Delete an embedded dashboard record (admin only).
    */
   async deleteEmbeddedDashboard(id: number): Promise<void> {
-    await this.api.delete(`/dashboards/${id}/`);
+    await this.api.delete(`/api/superset/dashboards/${id}/`);
   }
 
   /**
@@ -155,7 +155,7 @@ class SupersetService {
    * POST /api/superset/sync/
    */
   async syncEmbeddedDashboards(): Promise<{ message: string; count: number }> {
-    const response = await this.api.post<{ message: string; count: number }>("/sync/");
+    const response = await this.api.post<{ message: string; count: number }>("/api/superset/sync/");
     return response.data;
   }
 }

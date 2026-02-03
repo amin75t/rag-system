@@ -276,7 +276,6 @@ def alpha_chat_completion(request):
             'input': openapi.Schema(
                 type=openapi.TYPE_STRING,
                 description='Text to embed or list of texts to embed',
-                description='Text or list of texts to embed'
             ),
             'model': openapi.Schema(
                 type=openapi.TYPE_STRING,

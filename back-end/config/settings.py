@@ -149,11 +149,11 @@ AUTH_USER_MODEL = 'users.User'
 # NOTE: Do not expose these credentials to the frontend.
 SUPERSET_CONFIG = {
     # Superset base URL used by Django backend to call Superset APIs
-    "SUPERSET_URL": "http://localhost:8088",
+    "SUPERSET_URL": "http://127.0.0.1:5000",
 
     # Service user credentials (create a dedicated user in Superset for embedding)
     "SUPERSET_USERNAME": "admin",
-    "SUPERSET_PASSWORD": "admin",
+    "SUPERSET_PASSWORD": "1234",
 
     # Fallback TTL (real exp is usually inside the guest token JWT)
     "GUEST_TOKEN_EXPIRY": 300,
@@ -165,13 +165,13 @@ SUPERSET_CONFIG = {
             "superset_dashboard_id": 1,
 
             # UUID from Superset "Embed" panel (REQUIRED for embedding)
-            "dashboard_uuid": "PUT-YOUR-EMBED-UUID-HERE",
+            "dashboard_uuid": "9542f8cb-444c-4416-b102-f0cba9a3fa74",
 
             # Browser-reachable Superset domain (used by React SDK as supersetDomain)
-            "domain": "http://localhost:8088",
+            "domain": "http://127.0.0.1:5000",
 
             # Optional: your app roles allowed to view this dashboard
-            "allowed_roles": ["Public"],
+            "allowed_roles": ["admin"],
         }
     },
 }
