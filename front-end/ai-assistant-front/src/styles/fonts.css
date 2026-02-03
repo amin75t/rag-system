@@ -1,0 +1,119 @@
+/* IRANSansX Font Face Definitions */
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-Thin.woff2') format('woff2');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-UltraLight.woff2') format('woff2');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-DemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IRANSansX';
+    src: url('../assets/font/IRANSansX-Black.woff2') format('woff2');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+/* Set default font family for the entire application */
+
+body {
+    font-family: 'IRANSansX', sans-serif;
+}
+
+
+/* Font weight utilities for IRANSansX */
+
+.font-iransans-thin {
+    font-weight: 100;
+}
+
+.font-iransans-ultralight {
+    font-weight: 200;
+}
+
+.font-iransans-light {
+    font-weight: 300;
+}
+
+.font-iransans-regular {
+    font-weight: 400;
+}
+
+.font-iransans-medium {
+    font-weight: 500;
+}
+
+.font-iransans-demibold {
+    font-weight: 600;
+}
+
+.font-iransans-bold {
+    font-weight: 700;
+}
+
+.font-iransans-extrabold {
+    font-weight: 800;
+}
+
+.font-iransans-black {
+    font-weight: 900;
+}

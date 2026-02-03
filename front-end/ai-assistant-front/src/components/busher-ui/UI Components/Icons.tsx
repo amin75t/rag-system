@@ -109,19 +109,3 @@ export function IconWarning({ className = "w-4 h-4" }: { className?: string }) {
     </svg>
   );
 }
-
-/* ── Icon Maps ── */
-
-export const kpiIconMap: Record<string, React.FC<{ className?: string }>> = {
-  population: IconPopulation,
-  area: IconArea,
-  unemployment: IconUnemployment,
-  gdp: IconGdp,
-  coast: IconCoast,
-};
-
-export const priorityIconMap: Record<string, React.FC<{ className?: string }>> = {
-  energy: IconEnergy,
-  sea: IconSea,
-  industry: IconIndustry,
-};

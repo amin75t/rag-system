@@ -1,0 +1,131 @@
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useLayoutContext } from '../contexts';
+
+interface SidebarProps {
+  isCollapsed?: boolean;
+  onToggle?: () => void;
+  isMobile?: boolean;
+}
+
+interface SidebarItem {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  path: string;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false, onToggle, isMobile = false }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { closeSidebar } = useLayoutContext();
+
+  const sidebarItems: SidebarItem[] = [
+    {
+      id: 'home',
+      name: 'خانه',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg>
+      ),
+      path: '/'
+    },
+    {
+      id: 'dashboards',
+      name: 'داشبوردهای Superset',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      ),
+      path: '/dashboards'
+    },
+    {
+      id: 'bushehr',
+      name: 'داشبورد بوشهر',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 13h8V3H3v8zm0 0v8h8V3zm0 0v8h8v-2H3v10zm0 0v8h8v-2H3v10z" />
+        </svg>
+      ),
+      path: '/busher'
+    }
+  ];
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  const handleItemClick = (path: string) => {
+    navigate(path);
+    // Close sidebar on mobile after navigation
+    if (isMobile) {
+      closeSidebar();
+    }
+  };
+
+  const handleToggle = () => {
+    if (onToggle) {
+      onToggle();
+    }
+  };
+
+  return (
+    <div className={`bg-gradient-to-b from-sky-800 to-sky-900 text-white transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-64'} min-h-screen flex flex-col font-iransans ${isMobile ? 'h-full' : ''}`} dir="rtl">
+      <div className="p-4">
+        <div className="flex items-center justify-between">
+          {!isCollapsed && (
+            <h1 className="text-xl font-bold text-white">RAG System</h1>
+          )}
+          <button
+            onClick={handleToggle}
+            className="p-1 rounded-md hover:bg-sky-700/50 transition-colors"
+            aria-label={isCollapsed ? "Open sidebar" : "Close sidebar"}
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {isMobile ? (
+                // Close icon for mobile
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                // Toggle icon for desktop
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isCollapsed ? "M15 5l-7 7 7 7" : "M9 19l7-7-7-7"} />
+              )}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav className="flex-1 px-2 space-y-2">
+        {sidebarItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => handleItemClick(item.path)}
+            className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-start'} px-3 py-2 rounded-md transition-colors ${
+              isActive(item.path)
+                ? 'bg-sky-600 text-white'
+                : 'text-sky-100 hover:bg-sky-700/50 hover:text-white'
+            }`}
+            title={isCollapsed ? item.name : undefined}
+          >
+            <span className="flex-shrink-0">{item.icon}</span>
+            {!isCollapsed && (
+              <span className="mr-3 text-sm font-medium">{item.name}</span>
+            )}
+          </button>
+        ))}
+      </nav>
+
+      <div className="p-4 border-t border-sky-700">
+        {!isCollapsed && (
+          <div className="text-xs text-sky-200">
+            <p>سیستم مدیریت هوشمند</p>
+            <p>نسخه 1.0.0</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
