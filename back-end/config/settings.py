@@ -38,11 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'drf_yasg',
     'corsheaders',
     'users',  # Custom users app
     'utils',  # Utils app for API connections and utilities
-    'superset',  # Superset integration app
 ]
 
 MIDDLEWARE = [
@@ -62,7 +62,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'users.authentication.TokenAuthenticationFromCookie',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -143,35 +143,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
-# -----------------------------
-# Superset Configuration
-# -----------------------------
-# NOTE: Do not expose these credentials to the frontend.
-SUPERSET_CONFIG = {
-    # Superset base URL used by Django backend to call Superset APIs
-    "SUPERSET_URL": "http://127.0.0.1:5000",
-
-    # Service user credentials (create a dedicated user in Superset for embedding)
-    "SUPERSET_USERNAME": "admin",
-    "SUPERSET_PASSWORD": "1234",
-
-    # Fallback TTL (real exp is usually inside the guest token JWT)
-    "GUEST_TOKEN_EXPIRY": 300,
-
-    # Allow-list dashboards your app is allowed to embed
-    "EMBEDDABLE_DASHBOARDS": {
-        "sample_dashboard": {
-            # Numeric Superset dashboard id (optional; only for metadata endpoints)
-            "superset_dashboard_id": 1,
-
-            # UUID from Superset "Embed" panel (REQUIRED for embedding)
-            "dashboard_uuid": "9542f8cb-444c-4416-b102-f0cba9a3fa74",
-
-            # Browser-reachable Superset domain (used by React SDK as supersetDomain)
-            "domain": "http://127.0.0.1:5000",
-
-            # Optional: your app roles allowed to view this dashboard
-            "allowed_roles": ["admin"],
-        }
-    },
-}
