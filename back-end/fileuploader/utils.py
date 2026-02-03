@@ -22,3 +22,4 @@ def upload_to_minio(file_obj, user_id, filename):
 
     s3.upload_fileobj(file_obj, bucket_name, minio_path)
     return minio_path
+
