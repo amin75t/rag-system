@@ -7,7 +7,9 @@ from .views import (
     convert_miladi_to_samci,
     convert_samci_to_miladi,
     alpha_chat_completion,
-    alpha_embeddings
+    alpha_embeddings,
+    rag_chat,
+    rag_debug
 )
 
 app_name = 'utils'
@@ -18,4 +20,6 @@ urlpatterns = [
     path('samci-to-miladi/', convert_samci_to_miladi, name='samci_to_miladi'),
     path('alpha/chat/', alpha_chat_completion, name='alpha_chat_completion'),
     path('alpha/embeddings/', alpha_embeddings, name='alpha_embeddings'),
+    path('rag/chat/', rag_chat, name='rag_chat'),
+    path('rag/debug/', rag_debug, name='rag_debug'),
 ]
