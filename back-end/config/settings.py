@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'users',  # Custom users app
+    'superset',  # Superset app for embedded dashboards
     'utils',  # Utils app for API connections and utilities
 ]
 

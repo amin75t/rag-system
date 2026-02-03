@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { User, SignupData } from '../contexts/authContext';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -47,9 +47,9 @@ export interface LoginResponse {
 
 export const authService = {
   // Login user
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(phone: string, password: string): Promise<LoginResponse> {
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      const response = await apiClient.post('/api/auth/login/', { phone, password });
       const { user, token, refreshToken } = response.data;
       
       // Store token and user data
@@ -68,7 +68,7 @@ export const authService = {
   // Register new user
   async signup(userData: SignupData): Promise<LoginResponse> {
     try {
-      const response = await apiClient.post('/auth/register', userData);
+      const response = await apiClient.post('/api/auth/signup/', userData);
       const { user, token, refreshToken } = response.data;
       
       // Store token and user data
@@ -87,7 +87,7 @@ export const authService = {
   // Logout user
   async logout(): Promise<void> {
     try {
-      await apiClient.post('/auth/logout');
+      await apiClient.post('/auth/logout/');
     } catch (error) {
       // Even if logout request fails, clear local storage
       console.error('Logout request failed:', error);
@@ -107,7 +107,7 @@ export const authService = {
         throw new Error('No refresh token available');
       }
 
-      const response = await apiClient.post('/auth/refresh', { refreshToken });
+      const response = await apiClient.post('/auth/refresh/', { refreshToken });
       const { token } = response.data;
       
       localStorage.setItem('authToken', token);

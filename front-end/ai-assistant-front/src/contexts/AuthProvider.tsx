@@ -47,6 +47,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const { user: registeredUser } = await authService.signup(userData);
       setUser(registeredUser);
+      // Update user state immediately after successful signup
+      if (registeredUser) {
+        setUser(registeredUser);
+      }
     } finally {
       setIsLoading(false);
     }

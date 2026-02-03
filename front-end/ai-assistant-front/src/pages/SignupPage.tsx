@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth, SignupData } from '../contexts';
 // فرض بر این است که توابع را در فایل authSchema.ts ذخیره کرده‌اید
@@ -7,10 +7,9 @@ import { signupSchema } from '../schemas/authSchema';
 const SignupPage: React.FC = () => {
   const [formData, setFormData] = useState<SignupData>({
     username: '',
-    email: '',
+    phone: '',
     password: '',
-    firstName: '',
-    lastName: '',
+    password_confirm: '',
   });
   const [confirmPassword, setConfirmPassword] = useState('');
   
@@ -21,17 +20,7 @@ const SignupPage: React.FC = () => {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
-  // پر کردن داده‌های تستی (اختیاری)
-  useEffect(() => {
-    setFormData({
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'password123',
-      firstName: 'کاربر',
-      lastName: 'آزمایشی',
-    });
-    setConfirmPassword('password123');
-  }, []);
+ 
 
   // تابع کمکی برای اعتبارسنجی لحظه‌ای هر فیلد
   const validateSingleField = (name: string, value: string) => {
@@ -60,6 +49,7 @@ const SignupPage: React.FC = () => {
   const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setConfirmPassword(value);
+    setFormData(prev => ({ ...prev, password_confirm: value }));
     validateSingleField('confirmPassword', value);
   };
 
@@ -67,8 +57,7 @@ const SignupPage: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const formDataWithConfirm = { ...formData, confirmPassword };
-    const result = signupSchema.safeParse(formDataWithConfirm);
+    const result = signupSchema.safeParse(formData);
     
     if (!result.success) {
       // استخراج تمام خطاها و نمایش آن‌ها
@@ -117,29 +106,16 @@ const SignupPage: React.FC = () => {
           {/* خطای کلی فرم */}
           <ErrorMsg name="form" />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-sky-700 mb-1">نام</label>
-              <input name="firstName" value={formData.firstName} onChange={handleChange} className="w-full px-3 py-2 border border-sky-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none" placeholder="نام" />
-              <ErrorMsg name="firstName" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-sky-700 mb-1">نام خانوادگی</label>
-              <input name="lastName" value={formData.lastName} onChange={handleChange} className="w-full px-3 py-2 border border-sky-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none" placeholder="نام خانوادگی" />
-              <ErrorMsg name="lastName" />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-sky-700 mb-1">شماره تلفن</label>
+            <input name="phone" type="tel" dir="ltr" value={formData.phone} onChange={handleChange} className="w-full px-3 py-2 border border-sky-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none" placeholder="09123456789" />
+            <ErrorMsg name="phone" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-sky-700 mb-1">نام کاربری</label>
             <input name="username" value={formData.username} onChange={handleChange} className="w-full px-3 py-2 border border-sky-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none" placeholder="User123" />
             <ErrorMsg name="username" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-sky-700 mb-1">ایمیل</label>
-            <input name="email" dir="ltr" value={formData.email} onChange={handleChange} className="w-full px-3 py-2 border border-sky-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none" placeholder="email@example.com" />
-            <ErrorMsg name="email" />
           </div>
 
           <div>

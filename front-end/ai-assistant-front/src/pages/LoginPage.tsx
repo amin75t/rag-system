@@ -5,7 +5,7 @@ import { useAuth } from '../contexts';
 import { loginSchema, LoginFormData } from '../schemas/authSchema';
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   
   // مدیریت خطاها به صورت تفکیک شده
@@ -24,15 +24,11 @@ const LoginPage: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // داده‌های تستی
-  useEffect(() => {
-    setEmail('test@example.com');
-    setPassword('password123');
-  }, []);
+ 
 
   // تابع کمکی برای اعتبارسنجی تکی (Real-time)
   const validateField = (name: string, value: string) => {
-    const dataToValidate = { email, password, [name]: value };
+    const dataToValidate = { phone, password, [name]: value };
     const result = loginSchema.safeParse(dataToValidate);
     
     if (!result.success) {
@@ -43,10 +39,10 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setEmail(val);
-    validateField('email', val);
+    setPhone(val);
+    validateField('phone', val);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +56,7 @@ const LoginPage: React.FC = () => {
     setFieldErrors({});
     
     // اعتبارسنجی نهایی با Zod
-    const formData: LoginFormData = { email, password };
+    const formData: LoginFormData = { phone, password };
     const result = loginSchema.safeParse(formData);
     
     if (!result.success) {
@@ -79,11 +75,11 @@ const LoginPage: React.FC = () => {
 
     try {
       // لاگین از طریق Context (شامل لاگیک Fetch و ذخیره توکن)
-      await login(email, password);
+      await login(phone, password);
       navigate('/');
     } catch (err: unknown) {
       // نمایش خطای سمت سرور
-      const errorMessage = err instanceof Error ? err.message : 'ایمیل یا رمز عبور اشتباه است';
+      const errorMessage = err instanceof Error ? err.message : 'شماره تلفن یا رمز عبور اشتباه است';
       setFieldErrors({ form: errorMessage });
     } finally {
       setIsLoading(false);
@@ -116,18 +112,18 @@ const LoginPage: React.FC = () => {
           )}
           
           <div>
-            <label className="block text-sm font-medium text-sky-700 mb-2">ایمیل</label>
+            <label className="block text-sm font-medium text-sky-700 mb-2">شماره تلفن</label>
             <input
-              type="email"
-              value={email}
-              onChange={handleEmailChange}
+              type="tel"
+              value={phone}
+              onChange={handlePhoneChange}
               dir="ltr"
               className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-sky-500 outline-none transition-all ${
-                fieldErrors.email ? 'border-red-400 bg-red-50' : 'border-sky-200'
+                fieldErrors.phone ? 'border-red-400 bg-red-50' : 'border-sky-200'
               }`}
-              placeholder="example@mail.com"
+              placeholder="09123456789"
             />
-            {fieldErrors.email && <p className="text-red-500 text-[11px] mt-1 mr-1 font-bold">{fieldErrors.email}</p>}
+            {fieldErrors.phone && <p className="text-red-500 text-[11px] mt-1 mr-1 font-bold">{fieldErrors.phone}</p>}
           </div>
           
           <div>
@@ -158,12 +154,7 @@ const LoginPage: React.FC = () => {
             ) : 'ورود به حساب'}
           </button>
 
-          <div className="mt-4 p-3 bg-sky-50/50 rounded-xl border border-sky-100 text-center">
-             <p className="text-[10px] text-sky-600 leading-relaxed">
-               <span className="font-bold">دسترسی سریع (تست):</span><br />
-               test@example.com | password123
-             </p>
-          </div>
+          
         </form>
       </div>
     </div>
