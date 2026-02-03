@@ -1,7 +1,9 @@
 # file_uploader/utils.py
 import boto3
 from django.conf import settings
+import urllib3
 
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def get_minio_client():
     config = settings.MINIO_STORAGE_CONFIG
