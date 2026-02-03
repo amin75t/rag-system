@@ -18,11 +18,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load .env file
 load_dotenv(os.path.join(BASE_DIR, ".env"))
-# MinIO Config
-MINIO_ENDPOINT = os.getenv('Minio-S3_Url')
-MINIO_ACCESS_KEY = os.getenv('Bucket-Name')
-MINIO_SECRET_KEY = os.getenv('Password_Bucket')
-MINIO_BUCKET_NAME = os.getenv('User_Bucket')
+
+MINIO_STORAGE_CONFIG = {
+    'ENDPOINT': os.getenv('Minio_S3_Url'),
+    'ACCESS_KEY': os.getenv('Bucket_Name'),
+    'SECRET_KEY': os.getenv('Password_Bucket'),
+    'BUCKET_NAME': os.getenv('User_Bucket'),
+}
+
+MINIO_ENDPOINT = MINIO_STORAGE_CONFIG['ENDPOINT']
+MINIO_ACCESS_KEY = MINIO_STORAGE_CONFIG['ACCESS_KEY']
+MINIO_SECRET_KEY = MINIO_STORAGE_CONFIG['SECRET_KEY']
+MINIO_BUCKET_NAME = MINIO_STORAGE_CONFIG['BUCKET_NAME']
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -71,6 +78,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+
         'users.authentication.TokenAuthenticationFromCookie',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
@@ -150,5 +160,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': True,
+    'LOGIN_URL': '/api-auth/login/',
+    'LOGOUT_URL': '/api-auth/logout/',
+}
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
+LOGIN_REDIRECT_URL = '/swagger/' # بعد از لاگین برگردد به سواگر
+LOGOUT_REDIRECT_URL = '/swagger/'

@@ -35,6 +35,9 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/files/', include('fileuploader.urls')),
+# اضافه کردن فرم لاگین آماده DRF
+    path('api-auth/', include('rest_framework.urls')),
     path('api/auth/', include('users.urls')),
     path('api/utils/', include('utils.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
