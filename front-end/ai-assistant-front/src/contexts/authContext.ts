@@ -1,11 +1,12 @@
 import { createContext } from 'react';
 
 export interface User {
-  id: string;
+  id: number;
   username: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
+  phone: string;
+  first_name?: string;
+  last_name?: string;
+  created_at?: string;
   roles?: string[];
 }
 
@@ -16,6 +17,15 @@ export interface AuthContextType {
   login: (phone: string, password: string) => Promise<void>;
   signup: (userData: SignupData) => Promise<void>;
   logout: () => void;
+  getProfile: () => Promise<User>;
+  updateProfile: (profileData: ProfileData) => Promise<User>;
+}
+
+export interface ProfileData {
+  phone?: string;
+  username?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface SignupData {

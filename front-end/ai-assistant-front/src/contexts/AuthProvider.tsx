@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { AuthContext, AuthContextType, User, SignupData } from './authContext';
+import { AuthContext, AuthContextType, User, SignupData, ProfileData } from './authContext';
 import authService from '../services/authService';
 
 interface AuthProviderProps {
@@ -32,10 +32,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (phone: string, password: string): Promise<void> => {
     setIsLoading(true);
     try {
-      const { user: loggedInUser } = await authService.login(email, password);
+      const { user: loggedInUser } = await authService.login(phone, password);
       setUser(loggedInUser);
     } finally {
       setIsLoading(false);
@@ -68,6 +68,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const getProfile = async (): Promise<User> => {
+    setIsLoading(true);
+    try {
+      const profile = await authService.getProfile();
+      setUser(profile);
+      return profile;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateProfile = async (profileData: ProfileData): Promise<User> => {
+    setIsLoading(true);
+    try {
+      const updatedProfile = await authService.updateProfile(profileData);
+      setUser(updatedProfile);
+      return updatedProfile;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated,
@@ -75,6 +97,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     signup,
     logout,
+    getProfile,
+    updateProfile,
   };
 
   return (

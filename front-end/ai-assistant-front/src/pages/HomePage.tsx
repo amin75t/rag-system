@@ -62,12 +62,12 @@ export default function HomePage() {
         </button>
       )}
       <div className="text-center">
-        <h1 className="text-5xl font-bold text-sky-900 mb-4 drop-shadow-md">داشبورد جامع RAG System</h1>
+        <h1 className="md:text-5xl text-3xl mt-4 md:mt-0 font-bold text-sky-900 mb-4 drop-shadow-md">داشبورد جامع RAG System</h1>
         <p className="text-xl text-sky-700 max-w-2xl mx-auto">سیستم مدیریت و نمایش اطلاعات هوشمند</p>
         {user && (
           <p className="text-lg text-sky-600 mb-6">
-            خوش آمدید، {user.firstName && user.lastName
-              ? `${user.firstName} ${user.lastName}`
+            خوش آمدید، {user.first_name && user.last_name
+              ? `${user.first_name} ${user.last_name}`
               : user.username
             }!
           </p>

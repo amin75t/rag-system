@@ -113,20 +113,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false, onToggle, isMobi
       {!isCollapsed && user && (
         <div className="px-4 py-3 border-b border-sky-700">
           <div className="flex items-center space-x-reverse space-x-3">
-            <div className="w-10 h-10 bg-sky-600 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium">
-                {user.firstName?.[0] || user.username?.[0] || 'U'}
-              </span>
-            </div>
+          
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">
-                {user.firstName && user.lastName
-                  ? `${user.firstName} ${user.lastName}`
+                {user.first_name && user.last_name
+                  ? `${user.first_name} ${user.last_name}`
                   : user.username
                 }
               </p>
               <p className="text-xs text-sky-300 truncate">
-                {user.email}
+                {user.phone}
               </p>
             </div>
           </div>

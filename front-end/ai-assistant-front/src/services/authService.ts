@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, SignupData } from '../contexts/authContext';
+import { User, SignupData, ProfileData } from '../contexts/authContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -131,6 +131,30 @@ export const authService = {
   // Check if user is authenticated
   isAuthenticated(): boolean {
     return !!localStorage.getItem('authToken');
+  },
+
+  // Get user profile
+  async getProfile(): Promise<User> {
+    try {
+      const response = await apiClient.get('/api/auth/profile/');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  },
+
+  // Update user profile
+  async updateProfile(profileData: ProfileData): Promise<User> {
+    try {
+      const response = await apiClient.post('/api/auth/profile/', profileData);
+      
+      // Update user data in local storage
+      localStorage.setItem('user', JSON.stringify(response.data));
+      
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
   },
 
   // Handle API errors

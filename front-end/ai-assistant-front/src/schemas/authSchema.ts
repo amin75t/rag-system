@@ -16,27 +16,32 @@ const PERSIAN_ERROR_MESSAGES = {
 };
 
 // ۲. تعریف اسکیماهای پایه برای جلوگیری از تکرار کد
-const phoneSchema = z
-  .string(PERSIAN_ERROR_MESSAGES.phone_required)
-  .min(1, PERSIAN_ERROR_MESSAGES.phone_required)
+const phoneSchema = z.string({
+  required_error: PERSIAN_ERROR_MESSAGES.phone_required,
+  invalid_type_error: PERSIAN_ERROR_MESSAGES.phone_invalid,
+}).min(1, PERSIAN_ERROR_MESSAGES.phone_required)
   .regex(/^09[0-9]{9}$/, PERSIAN_ERROR_MESSAGES.phone_invalid);
 
-const emailSchema = z
-  .string(PERSIAN_ERROR_MESSAGES.email_required)
-  .min(1, PERSIAN_ERROR_MESSAGES.email_required)
+const emailSchema = z.string({
+  required_error: PERSIAN_ERROR_MESSAGES.email_required,
+  invalid_type_error: PERSIAN_ERROR_MESSAGES.email_invalid,
+}).min(1, PERSIAN_ERROR_MESSAGES.email_required)
   .email(PERSIAN_ERROR_MESSAGES.email_invalid);
 
-const passwordSchema = z
-  .string(PERSIAN_ERROR_MESSAGES.password_required)
-  .min(6, PERSIAN_ERROR_MESSAGES.password_min);
+const passwordSchema = z.string({
+  required_error: PERSIAN_ERROR_MESSAGES.password_required,
+  invalid_type_error: PERSIAN_ERROR_MESSAGES.password_min,
+}).min(6, PERSIAN_ERROR_MESSAGES.password_min);
 
-const nameSchema = z
-  .string(PERSIAN_ERROR_MESSAGES.name_required)
-  .min(2, PERSIAN_ERROR_MESSAGES.name_min);
+const nameSchema = z.string({
+  required_error: PERSIAN_ERROR_MESSAGES.name_required,
+  invalid_type_error: PERSIAN_ERROR_MESSAGES.name_min,
+}).min(2, PERSIAN_ERROR_MESSAGES.name_min);
 
-const usernameSchema = z
-  .string(PERSIAN_ERROR_MESSAGES.username_required)
-  .min(3, PERSIAN_ERROR_MESSAGES.username_min);
+const usernameSchema = z.string({
+  required_error: PERSIAN_ERROR_MESSAGES.username_required,
+  invalid_type_error: PERSIAN_ERROR_MESSAGES.username_min,
+}).min(3, PERSIAN_ERROR_MESSAGES.username_min);
 
 // ۳. اسکیمای نهایی برای فرم‌ها
 export const loginSchema = z.object({
@@ -48,7 +53,9 @@ export const signupSchema = z.object({
   username: usernameSchema,
   phone: phoneSchema,
   password: passwordSchema,
-  password_confirm: z.string(PERSIAN_ERROR_MESSAGES.password_required),
+  password_confirm: z.string({
+    required_error: PERSIAN_ERROR_MESSAGES.password_required,
+  }),
 }).refine((data) => data.password === data.password_confirm, {
   message: PERSIAN_ERROR_MESSAGES.password_match,
   path: ['password_confirm'],
