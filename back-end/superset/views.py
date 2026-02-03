@@ -151,7 +151,7 @@ def dashboard_info(request, superset_dashboard_id: int):
 
 
 @api_view(["POST"])
-@permission_classes([permissions.IsAdminUser])
+@permission_classes([permissions.AllowAny])
 def sync_embedded_dashboards(request):
     """
     Admin helper: sync allow-listed dashboards from settings into DB.
