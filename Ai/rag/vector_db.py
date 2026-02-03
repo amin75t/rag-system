@@ -48,6 +48,25 @@ class VectorDBManager:
         self.persist_directory = Path(persist_directory)
         self.embedding_function = embedding_function
         
+        # DEBUG: Log initialization details
+        logger.info("=" * 70)
+        logger.info("VectorDBManager Initialization")
+        logger.info("=" * 70)
+        logger.info(f"Collection name: {collection_name}")
+        logger.info(f"Persist directory (raw): {persist_directory}")
+        logger.info(f"Persist directory (absolute): {self.persist_directory.absolute()}")
+        logger.info(f"Current working directory: {Path.cwd().absolute()}")
+        logger.info(f"VECTOR_DB_PATH env var: {os.getenv('VECTOR_DB_PATH', 'NOT SET')}")
+        
+        # Check if directory exists and what's in it
+        if self.persist_directory.exists():
+            logger.info(f"Persist directory EXISTS")
+            logger.info(f"Contents of persist directory:")
+            for item in self.persist_directory.iterdir():
+                logger.info(f"  - {item.name} (dir={item.is_dir()})")
+        else:
+            logger.info(f"Persist directory DOES NOT EXIST - will be created")
+        
         # Create persist directory if it doesn't exist
         self.persist_directory.mkdir(parents=True, exist_ok=True)
         
@@ -60,10 +79,18 @@ class VectorDBManager:
             )
         )
         
+        # DEBUG: List all collections before accessing
+        try:
+            all_collections = self.client.list_collections()
+            logger.info(f"Existing collections in database: {[c.name for c in all_collections]}")
+        except Exception as e:
+            logger.warning(f"Could not list collections: {e}")
+        
         # Get or create collection
         self.collection = self._get_or_create_collection()
         
         logger.info(f"VectorDBManager initialized with collection '{collection_name}'")
+        logger.info("=" * 70)
     
     def _get_or_create_collection(self):
         """Get existing collection or create new one."""
@@ -241,6 +268,62 @@ class VectorDBManager:
         self.collection = self._get_or_create_collection()
         
         logger.info("Reset vector database")
+
+
+def inspect_vector_db_directory(directory_path: str) -> Dict[str, Any]:
+    """
+    Inspect a vector database directory to understand its structure.
+    
+    This helps debug issues with ChromaDB database locations.
+    
+    Args:
+        directory_path: Path to inspect
+        
+    Returns:
+        Dictionary with inspection results
+    """
+    import glob
+    path = Path(directory_path)
+    
+    result = {
+        "path": str(path.absolute()),
+        "exists": path.exists(),
+        "is_directory": path.is_dir(),
+        "contents": [],
+        "chroma_collections": [],
+        "potential_chroma_dirs": []
+    }
+    
+    if not path.exists():
+        return result
+    
+    # List all contents
+    for item in path.iterdir():
+        item_info = {
+            "name": item.name,
+            "is_dir": item.is_dir(),
+            "size": item.stat().st_size if item.is_file() else None
+        }
+        result["contents"].append(item_info)
+        
+        # Check for ChromaDB collection directories (UUID pattern)
+        if item.is_dir() and len(item.name) == 36:  # UUID length
+            result["potential_chroma_dirs"].append(item.name)
+            
+            # Check for ChromaDB files
+            chroma_files = ["chroma.sqlite3", "data_level0.bin", "header.bin", "length.bin", "link_lists.bin"]
+            found_files = []
+            for cf in chroma_files:
+                if (item / cf).exists():
+                    found_files.append(cf)
+            
+            if found_files:
+                result["chroma_collections"].append({
+                    "uuid": item.name,
+                    "files": found_files
+                })
+    
+    return result
 
 
 # Singleton instance

@@ -429,12 +429,17 @@ def rag_chat(request):
     import sys
     from pathlib import Path
     
-    # Add Ai/rag to path
-    RAG_PATH = Path(__file__).parent.parent.parent / "Ai" / "rag"
-    if str(RAG_PATH) not in sys.path:
-        sys.path.insert(0, str(RAG_PATH))
+    # Add project root to path (parent of Ai directory)
+    # __file__ = back-end/utils/views.py
+    # .parent = back-end/utils/
+    # .parent.parent = back-end/
+    # .parent.parent.parent = project root (where Ai/ is located)
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
     
-    from vector_db import get_vector_db_manager
+    # Now we can import from Ai.rag
+    from Ai.rag.vector_db import get_vector_db_manager
     
     data = request.data
     query = data.get('query')
@@ -454,12 +459,58 @@ def rag_chat(request):
         client = get_alpha_api_client()
         embedding_response = client.embeddings(query)
         embedding_vector = client.extract_embeddings(embedding_response)[0]
-        
+        print(f"embad the request embedding_response:{embedding_response}")
+        print(f"embad the request embedding_vector:{embedding_vector}")
+
         # Step 2: Query the vector database for relevant documents
-        vector_db = get_vector_db_manager()
+        
+        print("=" * 70)
+        print("DEBUG: Vector Database Connection Info")
+        print("=" * 70)
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"VECTOR_DB_PATH env var: {os.getenv('VECTOR_DB_PATH', 'NOT SET')}")
+        
+        # Check both possible database locations
+        # Location 1: Ai/db/vector_db (correct location)
+        vector_db_path_1 = Path("/mnt/d/projact/rag-new/rag-system/Ai/db/vector_db")
+        # Location 2: Ai/rag/Ai/db/vector_db (incorrect nested path from indexing script)
+        vector_db_path_2 = Path("Ai/rag/Ai/db/vector_db")
+        
+        print(f"Checking database location 1: {vector_db_path_1.absolute()}")
+        print(f"  Exists: {vector_db_path_1.exists()}")
+        if vector_db_path_1.exists():
+            print(f"  Contents: {[item.name for item in vector_db_path_1.iterdir()]}")
+        
+        print(f"\nChecking database location 2: {vector_db_path_2.absolute()}")
+        print(f"  Exists: {vector_db_path_2.exists()}")
+        if vector_db_path_2.exists():
+            print(f"  Contents: {[item.name for item in vector_db_path_2.iterdir()]}")
+        
+        # Use database that has data (location 2 has indexed documents)
+        vector_db_path = vector_db_path_2 if vector_db_path_2.exists() else vector_db_path_1
+        
+        print(f"\nUsing database path: {vector_db_path.absolute()}")
+        
+        vector_db = get_vector_db_manager(
+                collection_name="documents",
+                persist_directory=str(vector_db_path)
+        )
+        
+        print(f"Vector DB persist directory: {vector_db.persist_directory.absolute()}")
+        print(f"Vector DB collection name: {vector_db.collection_name}")
         
         # DEBUG: Check how many documents are in the database
         doc_count = vector_db.count()
+        print(f"Document count in collection: {doc_count}")
+        
+        # List all collections in the database
+        try:
+            all_collections = vector_db.client.list_collections()
+            print(f"All collections in database: {[c.name for c in all_collections]}")
+        except Exception as e:
+            print(f"Error listing collections: {e}")
+        
+        print("=" * 70)
         
         search_results = vector_db.query(
             query_embeddings=[embedding_vector],
@@ -586,16 +637,36 @@ def rag_debug(request):
     import sys
     from pathlib import Path
     
-    # Add Ai/rag to path
-    RAG_PATH = Path(__file__).parent.parent.parent / "Ai" / "rag"
-    if str(RAG_PATH) not in sys.path:
-        sys.path.insert(0, str(RAG_PATH))
+    # Add project root to path (parent of Ai directory)
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    if str(PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT))
     
-    from vector_db import get_vector_db_manager
+    from Ai.rag.vector_db import get_vector_db_manager, inspect_vector_db_directory
     
     try:
-        vector_db = get_vector_db_manager()
+        # Check both possible database locations
+        vector_db_path_1 = Path("/mnt/d/projact/rag-new/rag-system/Ai/db/vector_db")
+        vector_db_path_2 = Path("Ai/rag/Ai/db/vector_db")
+        
+        # Use database that has data (location 2 has indexed documents)
+        vector_db_path = vector_db_path_2 if vector_db_path_2.exists() else vector_db_path_1
+        
+        # Get vector DB directory inspection
+        inspection = inspect_vector_db_directory(str(vector_db_path))
+        
+        # Get vector DB manager info
+        vector_db = get_vector_db_manager(persist_directory=str(vector_db_path))
         count = vector_db.count()
+        
+        # List all collections
+        all_collections = vector_db.client.list_collections()
+        collection_info = []
+        for coll in all_collections:
+            collection_info.append({
+                'name': coll.name,
+                'count': coll.count()
+            })
         
         # Get sample documents
         sample_limit = min(5, count) if count > 0 else 0
@@ -607,7 +678,12 @@ def rag_debug(request):
                 sample_docs = results['documents'][:sample_limit]
         
         return Response({
-            'count': count,
+            'directory_inspection': inspection,
+            'current_collection': {
+                'name': vector_db.collection_name,
+                'count': count
+            },
+            'all_collections': collection_info,
             'sample_documents': sample_docs
         })
         
