@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import login, logout
+from rest_framework.authtoken.models import Token
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .serializers import SignUpSerializer, LoginSerializer, UserSerializer
@@ -78,10 +79,27 @@ def login_view(request):
     serializer.is_valid(raise_exception=True)
     user = serializer.validated_data['user']
     login(request, user)
-    return Response({
+    
+    # Get or create token for the user
+    token, created = Token.objects.get_or_create(user=user)
+    
+    # Create response with user data
+    response = Response({
         'message': 'Login successful',
         'user': UserSerializer(user).data
     }, status=status.HTTP_200_OK)
+    
+    # Set HttpOnly cookie with the token
+    response.set_cookie(
+        'auth_token',
+        token.key,
+        httponly=True,
+        secure=False,  # Set to True in production (HTTPS)
+        samesite='Lax',
+        max_age=60 * 60 * 24 * 7  # 7 days
+    )
+    
+    return response
 
 
 @swagger_auto_schema(
@@ -100,10 +118,22 @@ def login_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
+    # Delete the user's token
+    try:
+        Token.objects.filter(user=request.user).delete()
+    except Token.DoesNotExist:
+        pass
+    
     logout(request)
-    return Response({
+    
+    # Create response and clear the HttpOnly cookie
+    response = Response({
         'message': 'Logout successful'
     }, status=status.HTTP_200_OK)
+    
+    response.delete_cookie('auth_token')
+    
+    return response
 
 
 @swagger_auto_schema(
