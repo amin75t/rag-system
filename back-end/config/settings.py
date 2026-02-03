@@ -11,10 +11,18 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
+from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env file
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+# MinIO Config
+MINIO_ENDPOINT = os.getenv('Minio-S3_Url')
+MINIO_ACCESS_KEY = os.getenv('Bucket-Name')
+MINIO_SECRET_KEY = os.getenv('Password_Bucket')
+MINIO_BUCKET_NAME = os.getenv('User_Bucket')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
