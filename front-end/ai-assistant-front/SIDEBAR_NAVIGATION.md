@@ -12,7 +12,6 @@ This application now includes a responsive sidebar navigation built with Tailwin
 ## Navigation Items
 
 1. **خانه (Home)**: The main landing page with welcome message
-2. **داشبوردهای Superset (Superset Dashboards)**: List of available Superset dashboards
 3. **داشبورد بوشهر (Bushehr Dashboard)**: The Bushehr province dashboard
 
 ## How to Use

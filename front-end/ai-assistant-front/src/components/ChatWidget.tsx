@@ -103,7 +103,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isExpanded = false, onToggle })
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col font-iransans" dir="rtl">
+    <div className="fixed bottom-4 right-4 z-50 md:w-96 w-[43vh] h-[600px] bg-white rounded-lg shadow-2xl flex flex-col font-iransans" dir="rtl">
       {/* Header */}
       <div className="bg-sky-600 text-white p-4 rounded-t-lg flex justify-between items-center">
         <div className="flex items-center gap-3">
