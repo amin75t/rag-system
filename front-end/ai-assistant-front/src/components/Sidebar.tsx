@@ -44,13 +44,33 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false, onToggle, isMobi
     },
     {
       id: 'bushehr',
-      name: 'داشبورد بوشهر',
+      name: 'بوشهر در یک نگاه',
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 13h8V3H3v8zm0 0v8h8V3zm0 0v8h8v-2H3v10zm0 0v8h8v-2H3v10z" />
         </svg>
       ),
       path: '/busher'
+    },
+    {
+      id: 'chat',
+      name: 'دستیار هوشمند',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+      ),
+      path: '/chat'
+    },
+    {
+      id: 'profile',
+      name: 'پروفایل',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+      path: '/profile'
     }
   ];
 

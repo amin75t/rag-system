@@ -1,7 +1,6 @@
 import React, { useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth, SignupData } from '../contexts';
-// فرض بر این است که توابع را در فایل authSchema.ts ذخیره کرده‌اید
 import { signupSchema } from '../schemas/authSchema';
 
 const SignupPage: React.FC = () => {
@@ -13,7 +12,7 @@ const SignupPage: React.FC = () => {
   });
   const [confirmPassword, setConfirmPassword] = useState('');
   
-  // ذخیره خطاها برای هر فیلد به صورت مجزا
+
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   
@@ -22,20 +21,19 @@ const SignupPage: React.FC = () => {
 
  
 
-  // تابع کمکی برای اعتبارسنجی لحظه‌ای هر فیلد
+
   const validateSingleField = (name: string, value: string) => {
     const dataToValidate = { ...formData, confirmPassword, [name]: value };
     const result = signupSchema.safeParse(dataToValidate);
     
     if (!result.success) {
-      // پیدا کردن خطای مربوط به همین فیلد خاص
       const fieldError = result.error.issues.find(issue => issue.path.includes(name));
       setFieldErrors(prev => ({
         ...prev,
         [name]: fieldError ? fieldError.message : ''
       }));
     } else {
-      // اگر کل فرم معتبر بود، خطاها را پاک کن
+
       setFieldErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
@@ -60,7 +58,6 @@ const SignupPage: React.FC = () => {
     const result = signupSchema.safeParse(formData);
     
     if (!result.success) {
-      // استخراج تمام خطاها و نمایش آن‌ها
       const errors: Record<string, string> = {};
       result.error.issues.forEach(issue => {
         const pathKey = issue.path[0];
@@ -75,7 +72,7 @@ const SignupPage: React.FC = () => {
 
     try {
       await signup(formData);
-      navigate('/dashboards');
+      navigate('/');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'خطایی در ثبت‌نام رخ داد';
       setFieldErrors({ form: errorMessage });
@@ -84,7 +81,7 @@ const SignupPage: React.FC = () => {
     }
   };
 
-  // کامپوننت کوچک برای نمایش پیام خطا زیر هر اینپوت
+
   const ErrorMsg = ({ name }: { name: string }) => (
     fieldErrors[name] ? (
       <p className="text-red-500 text-xs mt-1 animate-pulse">{fieldErrors[name]}</p>
@@ -103,7 +100,6 @@ const SignupPage: React.FC = () => {
         </div>
         
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* خطای کلی فرم */}
           <ErrorMsg name="form" />
 
           <div>

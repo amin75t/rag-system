@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts';
-// اسکیما و تایپ‌ها را ایمپورت می‌کنیم
 import { loginSchema, LoginFormData } from '../schemas/authSchema';
 
 const LoginPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   
-  // مدیریت خطاها به صورت تفکیک شده
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -16,7 +14,7 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // تشخیص دستگاه موبایل
+ 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -26,7 +24,7 @@ const LoginPage: React.FC = () => {
 
  
 
-  // تابع کمکی برای اعتبارسنجی تکی (Real-time)
+
   const validateField = (name: string, value: string) => {
     const dataToValidate = { phone, password, [name]: value };
     const result = loginSchema.safeParse(dataToValidate);
@@ -55,7 +53,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setFieldErrors({});
     
-    // اعتبارسنجی نهایی با Zod
+  
     const formData: LoginFormData = { phone, password };
     const result = loginSchema.safeParse(formData);
     
@@ -74,11 +72,9 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // لاگین از طریق Context (شامل لاگیک Fetch و ذخیره توکن)
       await login(phone, password);
       navigate('/');
     } catch (err: unknown) {
-      // نمایش خطای سمت سرور
       const errorMessage = err instanceof Error ? err.message : 'شماره تلفن یا رمز عبور اشتباه است';
       setFieldErrors({ form: errorMessage });
     } finally {
@@ -104,7 +100,6 @@ const LoginPage: React.FC = () => {
         </div>
         
         <form className="space-y-5" onSubmit={handleSubmit}>
-          {/* خطای کلی (مثل خطای سرور) */}
           {fieldErrors.form && (
             <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-xs flex items-center animate-shake">
               {fieldErrors.form}

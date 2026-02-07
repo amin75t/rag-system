@@ -1,12 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLayoutContext, useAuth } from "../contexts";
+import ChatWidget from "../components/ChatWidget";
 
 
 export default function HomePage() {
   const { isSidebarOpen, toggleSidebar } = useLayoutContext();
   const { user, login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
 
   // Auto-login with specified credentials
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function HomePage() {
       {!isSidebarOpen && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-4 right-4 z-50 p-2 bg-sky-800 text-white rounded-md shadow-lg hover:bg-sky-700 transition-colors"
+          className="fixed top-4 right-4 z-40 p-2 bg-sky-800 text-white rounded-md shadow-lg hover:bg-sky-700 transition-colors"
           aria-label="Open menu"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -95,13 +97,19 @@ export default function HomePage() {
               className="bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
             >
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 13h8V3H3v8zm0 0v8h8v-8H3zm0 0v8h8v-2H3v10zm0 0v8h8v-2H3v10z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 13h8V3H3v8zm0 0v8h8V3zm0 0v8h8v-2H3v10zm0 0v8h8v-2H3v10z" />
               </svg>
               داشبورد بوشهر
             </button>
           </div>
         </div>
       </div>
+      
+      {/* Chat Widget */}
+      <ChatWidget 
+        isExpanded={isChatExpanded} 
+        onToggle={() => setIsChatExpanded(!isChatExpanded)} 
+      />
     </div>
   );
 }

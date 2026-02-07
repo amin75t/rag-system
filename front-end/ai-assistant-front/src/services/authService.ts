@@ -87,7 +87,7 @@ export const authService = {
   // Logout user
   async logout(): Promise<void> {
     try {
-      await apiClient.post('/auth/logout/');
+      await apiClient.post('/api/auth/logout/');
     } catch (error) {
       // Even if logout request fails, clear local storage
       console.error('Logout request failed:', error);
@@ -107,7 +107,7 @@ export const authService = {
         throw new Error('No refresh token available');
       }
 
-      const response = await apiClient.post('/auth/refresh/', { refreshToken });
+      const response = await apiClient.post('/api/auth/refresh/', { refreshToken });
       const { token } = response.data;
       
       localStorage.setItem('authToken', token);
@@ -146,7 +146,7 @@ export const authService = {
   // Update user profile
   async updateProfile(profileData: ProfileData): Promise<User> {
     try {
-      const response = await apiClient.post('/api/auth/profile/', profileData);
+      const response = await apiClient.put('/api/auth/profile/', profileData);
       
       // Update user data in local storage
       localStorage.setItem('user', JSON.stringify(response.data));
@@ -163,7 +163,7 @@ export const authService = {
       // Axios error
       if (error.response) {
         // Server responded with error status
-        const message = error.response.data?.message || 'Server error occurred';
+        const message = error.response.data?.message || 'شماره تلفن یا رمز عبور شما اشتباه است ';
         return new Error(message);
       } else if (error.request) {
         // Request was made but no response received
