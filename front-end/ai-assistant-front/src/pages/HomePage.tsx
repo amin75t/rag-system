@@ -78,19 +78,10 @@ export default function HomePage() {
         <div className="mt-12 bg-white/80 backdrop-blur-md rounded-xl p-8 max-w-2xl mx-auto shadow-xl border border-sky-200">
           <h2 className="text-2xl font-semibold text-sky-800 mb-4">به داشبورد جامع خوش آمدید</h2>
           <p className="text-sky-600 leading-relaxed mb-6">
-            از منوی سمت راست برای دسترسی به بخش‌های مختلف سیستم استفاده کنید. شما می‌توانید به داشبوردهای Superset و داشبورد بوشهر دسترسی داشته باشید.
-          </p>
+از منوی سمت راست برای دسترسی به قسمت های مختلف داشبورد استفاده کنید          </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              onClick={() => navigate('/dashboards')}
-              className="bg-sky-600 hover:bg-sky-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
-            >
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              داشبوردهای Superset
-            </button>
+          
             
             <button
               onClick={() => navigate('/busher')}

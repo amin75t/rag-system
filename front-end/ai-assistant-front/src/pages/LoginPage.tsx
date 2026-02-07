@@ -15,6 +15,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
  
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -83,17 +84,28 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-sky-50 via-sky-100 to-sky-200 flex items-center justify-center font-iransans p-4`} dir="rtl">
-      <div className={`max-w-md w-full bg-white/95 backdrop-blur-sm ${isMobile ? 'p-6' : 'p-8'} rounded-2xl shadow-2xl border border-sky-100`}>
+    <div className={`min-h-screen bg-gradient-to-b from-slate-50 via-slate-50 to-sky-50/30 flex items-center justify-center font-iransans p-4`} dir="rtl">
+      <div className={`max-w-md w-full bg-white/95 backdrop-blur-sm ${isMobile ? 'p-6' : 'p-8'} rounded-2xl shadow-xl border border-neutral-200/70 animate-scale-in`}>
         
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4 4m-4-4v4m0 0v4M12 4a8 8 0 100 16 8 8 0 000-16z" />
-            </svg>
+        {/* Header with busher-ui style */}
+        <header className="relative overflow-hidden bg-gradient-to-l from-sky-700 via-sky-800 to-sky-900 -m-8 mb-6 p-6 text-white rounded-t-2xl">
+          {/* decorative circles */}
+          <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-white/5" />
+          <div className="pointer-events-none absolute -bottom-16 left-1/3 h-48 w-48 rounded-full bg-sky-400/10" />
+          <div className="pointer-events-none absolute -right-10 top-4 h-32 w-32 rounded-full bg-sky-300/8" />
+          
+          <div className="relative text-center">
+            <div className="mx-auto w-16 h-16 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+              <svg className="w-8 h-8 text-sky-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4 4m-4-4v4m0 0v4M12 4a8 8 0 100 16 8 8 0 000-16z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-black tracking-tight text-white">ورود به پنل کاربری</h2>
           </div>
-          <h2 className="text-2xl font-bold text-sky-900 mb-2">ورود به پنل کاربری</h2>
-          <p className="text-sm text-sky-600">
+        </header>
+        
+        <div className="text-center mb-6">
+          <p className="text-sm text-neutral-600">
             هنوز ثبت‌نام نکرده‌اید؟ {' '}
             <Link to="/signup" className="font-bold text-sky-700 hover:text-sky-500 underline transition-colors">ایجاد حساب جدید</Link>
           </p>
@@ -101,20 +113,20 @@ const LoginPage: React.FC = () => {
         
         <form className="space-y-5" onSubmit={handleSubmit}>
           {fieldErrors.form && (
-            <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-xs flex items-center animate-shake">
+            <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-xs flex items-center animate-shake">
               {fieldErrors.form}
             </div>
           )}
           
           <div>
-            <label className="block text-sm font-medium text-sky-700 mb-2">شماره تلفن</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">شماره تلفن</label>
             <input
               type="tel"
               value={phone}
               onChange={handlePhoneChange}
               dir="ltr"
               className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-sky-500 outline-none transition-all ${
-                fieldErrors.phone ? 'border-red-400 bg-red-50' : 'border-sky-200'
+                fieldErrors.phone ? 'border-red-400 bg-red-50' : 'border-neutral-200'
               }`}
               placeholder="09123456789"
             />
@@ -122,14 +134,14 @@ const LoginPage: React.FC = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-sky-700 mb-2">رمز عبور</label>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">رمز عبور</label>
             <input
               type="password"
               value={password}
               onChange={handlePasswordChange}
               dir="ltr"
               className={`block w-full px-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-sky-500 outline-none transition-all ${
-                fieldErrors.password ? 'border-red-400 bg-red-50' : 'border-sky-200'
+                fieldErrors.password ? 'border-red-400 bg-red-50' : 'border-neutral-200'
               }`}
               placeholder="••••••••"
             />
@@ -139,7 +151,7 @@ const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:opacity-50 transition-all transform hover:scale-[1.01]"
+            className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-l from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:opacity-50 transition-all transform hover:scale-[1.01] shadow-lg"
           >
             {isLoading ? (
               <span className="flex items-center">

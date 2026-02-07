@@ -3,8 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import DashboardListPage from "./pages/DashboardListPage";
-import DashboardViewPage from "./pages/DashboardViewPage";
+
 import BusherUIPage from "./pages/BusherUIPage";
 import ProfilePage from "./pages/ProfilePage";
 import ChatPage from "./pages/ChatPage";
@@ -26,20 +25,7 @@ const AppRoutes: React.FC = () => {
           </Layout>
         </PrivateRoute>
       } />
-      <Route path="/dashboards" element={
-        <PrivateRoute>
-          <Layout>
-            <DashboardListPage />
-          </Layout>
-        </PrivateRoute>
-      } />
-      <Route path="/dashboard/:dashboardUuid" element={
-        <PrivateRoute>
-          <Layout>
-            <DashboardViewPage />
-          </Layout>
-        </PrivateRoute>
-      } />
+   
       <Route path="/busher" element={
         <PrivateRoute>
           <Layout>
